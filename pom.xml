@@ -59,11 +59,11 @@ limitations under the License.
   </distributionManagement>
 
   <properties>
-    <google.java.format.version>1.7</google.java.format.version>
-    <hadoop.version>3.3.6</hadoop.version>
-    <hive.version>4.0.0</hive.version>
+    <google.java.format.version>1.25.2</google.java.format.version>
+    <hadoop.version>3.4.2</hadoop.version>
+    <hive.version>4.1.0</hive.version>
     <maven.assembly.version>3.7.1</maven.assembly.version>
-    <maven.compiler.version>3.13.0</maven.compiler.version>
+    <maven.compiler.version>3.14.0</maven.compiler.version>
     <maven.dependency.version>3.8.1</maven.dependency.version>
     <maven.exec.version>3.5.0</maven.exec.version>
     <maven.gpg.version>3.2.7</maven.gpg.version>
@@ -71,11 +71,11 @@ limitations under the License.
     <maven.javadoc.version>3.11.2</maven.javadoc.version>
     <maven.source.version>3.3.1</maven.source.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <spotless.version>2.30.0</spotless.version>
+    <spotless.version>2.46.1</spotless.version>
   </properties>
 
   <dependencyManagement>
-    <dependencies></dependencies>
+    <dependencies/>
   </dependencyManagement>
 
   <dependencies>
@@ -128,8 +128,8 @@ limitations under the License.
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${maven.compiler.version}</version>
         <configuration>
-          <source>8</source>
-          <target>8</target>
+          <source>21</source>
+          <target>21</target>
         </configuration>
       </plugin>
       <plugin>
@@ -142,8 +142,8 @@ limitations under the License.
               <version>${google.java.format.version}</version>
               <style>GOOGLE</style>
             </googleJavaFormat>
-            <removeUnusedImports></removeUnusedImports>
-            <importOrder></importOrder>
+            <removeUnusedImports/>
+            <importOrder/>
             <licenseHeader>
               <file>style/java-header</file>
             </licenseHeader>
@@ -152,14 +152,14 @@ limitations under the License.
             <includes>
               <include>**/*.md</include>
             </includes>
-            <flexmark></flexmark>
+            <flexmark/>
           </markdown>
           <pom>
             <includes>
               <include>pom.xml</include>
             </includes>
             <sortPom>
-              <sortDependencies></sortDependencies>
+              <sortDependencies/>
               <sortProperties>true</sortProperties>
             </sortPom>
             <licenseHeader>
