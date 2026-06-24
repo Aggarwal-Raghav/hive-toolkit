@@ -17,12 +17,12 @@ limitations under the License.
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.github.raghav</groupId>
-  <artifactId>HMS-Bombard</artifactId>
+  <artifactId>hms-bombard</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <description>project description</description>
-  <url>https://github.com/Aggarwal-Raghav/HMS-Bombard</url>
+  <url>https://github.com/Aggarwal-Raghav/hive-toolkit/tree/main/hms-bombard</url>
 
   <licenses>
     <license>
@@ -40,9 +40,9 @@ limitations under the License.
   </developers>
 
   <scm>
-    <connection>scm:git:git://github.com/Aggarwal-Raghav/HMS-Bombard.git</connection>
-    <developerConnection>scm:git:ssh://github.com:Aggarwal-Raghav/HMS-Bombard.git</developerConnection>
-    <url>http://github.com/Aggarwal-Raghav/HMS-Bombard/tree/main</url>
+    <connection>scm:git:git://github.com/Aggarwal-Raghav/hive-toolkit.git</connection>
+    <developerConnection>scm:git:ssh://github.com:Aggarwal-Raghav/hive-toolkit.git</developerConnection>
+    <url>https://github.com/Aggarwal-Raghav/hive-toolkit/tree/main/hms-bombard</url>
   </scm>
 
   <distributionManagement>
